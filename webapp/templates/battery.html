@@ -1,0 +1,6 @@
+{% for k1,v1 in battery.items %}
+<li>  {{v1.details}}
+<progress value="{{v1.charge_percent}}" max="100"></progress>
+</li>
+{% endfor %}
+

@@ -1,0 +1,92 @@
+{% load static %}
+<html>
+<head>
+  <title> System Monitor </title>
+  <link rel=stylesheet type=text/css href="{% get_static_prefix %}css/style.css">
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script type="text/javascript">
+
+    /* Since the battery and the network statistics have to be updated
+    at different time intervals, I am using Web workers to manage
+    the updation of each of these statistic. In each Web worker, I use
+    setInterval() funciton to "push" the updated data at every time
+    interval which is then updated on the page from here.
+    */
+
+    var battery_worker = new Worker("{% get_static_prefix %}js/fetch_battery.js");
+    battery_worker.addEventListener('message', function(e) {
+    fetch_time();
+    jQuery("div#batterystats").html(e.data);
+    }, false);
+    battery_worker.postMessage("Dummy");
+
+    var networks_worker = new Worker("{% get_static_prefix %}js/fetch_networks.js");
+    networks_worker.addEventListener('message', function(e) {
+    fetch_time();
+    jQuery("div#networkstats").html(e.data);
+    }, false);
+    networks_worker.postMessage("Dummy");
+
+
+    function fetch_time(){
+    jQuery.get("./time", function(data){
+    jQuery("div#updatetime").html(data);
+    })};
+
+
+    function fetch_battery(){
+    jQuery.get("./battery", function(data){
+    jQuery("div#batterystats").html(data);
+
+    })};
+
+    function fetch_networks(){
+    jQuery.get("./networks", function(data){
+    jQuery("div#networks").html(data);
+
+    })};
+
+
+    // Once on load
+    jQuery(document).ready(function() {
+    fetch_time();
+    fetch_battery();
+    fetch_networks();
+    });
+
+  </script>
+</head>
+<body>
+<center>
+<h1>System Monitor</h1>
+</center>
+
+<h3> System Details </h3>
+<li><b>Operating system: </b> {{ osname }}</li>
+<li><b>Last updated: </b> <div id="updatetime"> </li>
+  </div>
+</li>
+
+<h3> Battery details </h3>
+
+  <p><i>(Updated every 2 minutes )</i></p>
+  <div id="batterystats" class="stats">
+  </div>
+
+
+<h3> Accessible wireless networks </h3>
+
+<i>(Updated every 5 seconds )</i>
+<p></p>
+
+  <div id="networks" class="stats">
+  </div>
+
+<hr>
+This web app makes use of HTML 5 features such as Web Workers and progress bar.
+Please visit <a href="http://html5test.com/">here</a> to see if your browser
+supports these features.
+</hr>
+
+</body>
+</html>

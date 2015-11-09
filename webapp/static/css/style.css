@@ -1,0 +1,13 @@
+/* Very very basic CSS*/
+
+body {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #eee;
+  position: relative; /* Fix for absolute positioning */
+}
+
+h3 {
+    color: blue;
+   }
+
